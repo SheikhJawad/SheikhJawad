@@ -1,4 +1,4 @@
-👋 Hi, I'm Jawad, a Full Stack Web Developer specializing in creating dynamic and user-friendly web applications using Django. With expertise in responsive frontend development (HTML, CSS, JavaScript, Bootstrap) and robust backend solutions (Django for server-side logic, data handling, and RESTful APIs), I bring ideas to life through clean and efficient code. Passionate about learning and staying updated with new technologies, I aim to deliver visually appealing, scalable, and interactive experiences. Let's connect and collaborate—explore my repositories or reach out via email at hafizjawad858@gmail.com! 🚀
+👋 Hi, I'm Jawad, a Full Stack Web Developer specializing in creating dynamic and user-friendly web applications using Django. With expertise in responsive frontend development (HTML, CSS, JavaScript, Bootstrap) and robust backend solutions (Django for server-side logic, data handling, and RESTful APIs), I bring ideas to life through clean and efficient code. Passionate about learning and staying updated with new technologies, I aim to deliver visually appealing, scalable, and interactive experiences. Let's connect and collaborate and  explore my repositories or reach out via email at hafizjawad858@gmail.com! 🚀
 
 ## 🌐 Socials:
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://linkedin.com/in/https://www.linkedin.com/in/jawad-yousaf-devloper360/) 
@@ -19,4 +19,4 @@
 ---
 [![](https://visitcount.itsvg.in/api?id=SheikhJawad&icon=7&color=10)](https://visitcount.itsvg.in)
 
-<!-- Proudly created with GPRM ( https://gprm.itsvg.in ) -->
+
