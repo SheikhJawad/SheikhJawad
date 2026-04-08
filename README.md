@@ -1,6 +1,5 @@
 👋 Hi, I'm Jawad, a Full Stack Web Developer specializing in creating dynamic and user-friendly web applications using Django. With expertise in responsive frontend development (HTML, CSS, JavaScript, Bootstrap) and robust backend solutions (Django for server-side logic, data handling, and RESTful APIs), I bring ideas to life through clean and efficient code. Passionate about learning and staying updated with new technologies, I aim to deliver visually appealing, scalable, and interactive experiences. Let's connect and collaborate and  explore my repositories or reach out via email at hafizjawad858@gmail.com! 🚀
 
-[![Portfolio](https://img.shields.io/badge/Portfolio-000?style=for-the-badge&logo=vercel&logoColor=white)](https://portfolio-gz7f.vercel.app/)
 
 
 # 💻 Tech Stack:
