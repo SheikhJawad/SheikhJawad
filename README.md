@@ -1,99 +1,196 @@
-## Jawad Yousaf
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <img alt="Jawad Yousaf — Senior Backend Software Engineer" src="assets/hero-light.svg" width="100%">
+</picture>
 
-**Backend Engineer** · Distributed systems · Service architecture · LLM infrastructure
-
-I design and run the unglamorous half of AI products — service boundaries, queue topology,
-idempotency, backpressure, and the failure paths nobody demos.
-
-`Pakistan` · [LinkedIn](https://linkedin.com/in/jawad-yousaf-devloper360) · [Portfolio](https://personal-portfolio-seven-amber-80.vercel.app/) · `hafizjawad858@gmail.com`
+<p align="center">
+  <a href="https://github.com/SheikhJawad"><b>GitHub</b></a> &nbsp;·&nbsp;
+  <a href="https://linkedin.com/in/jawad-yousaf-devloper360"><b>LinkedIn</b></a> &nbsp;·&nbsp;
+  <a href="https://personal-portfolio-seven-amber-80.vercel.app/"><b>Portfolio</b></a> &nbsp;·&nbsp;
+  <a href="mailto:hafizjawad858@gmail.com"><b>Email</b></a>
+</p>
 
 ---
 
-### System design
+## About
 
-A platform I own the backend of: a stateless API tier, an autonomous worker fleet split by
-queue, and event-driven integration with partner systems. Scaled independently, deployed
-independently, failing independently.
+I build backend systems that stay correct under load and under failure.
 
-```mermaid
-flowchart TB
-    CL["Clients · Partner systems"]
-    CL -->|"REST · JWT · HMAC-signed"| API["API tier<br/><i>stateless · horizontally scaled</i>"]
+Most of my work sits behind the API: service boundaries, queue topology, database design,
+asynchronous processing, and the failure paths that never make it into a demo. I care about
+the properties that decide whether a system survives its second year — idempotency,
+backpressure, observability, and the ability to resume rather than restart.
 
-    API --> PG[("PostgreSQL<br/><i>system of record</i>")]
-    API --> BR{{"Redis<br/><i>broker · cache · checkpoints</i>"}}
+Recently that has meant putting LLM providers into production paths, where latency is
+unpredictable, failure is routine, and cost is a first-class constraint.
 
-    BR --> W1["Worker fleet<br/><i>queue: ai</i>"]
-    BR --> W2["Worker fleet<br/><i>queue: ingestion</i>"]
-    BR --> W3["Worker fleet<br/><i>queue: events</i>"]
+---
 
-    W1 --> LLM["LLM providers<br/>OpenAI · Anthropic · Google · Bedrock"]
-    W2 --> OBJ[("Object storage<br/>S3")]
-    W3 --> EVT["Event bus · webhooks<br/><i>at-least-once</i>"]
+## Engineering focus
 
-    W1 --> PG
-    W2 --> PG
-    W3 --> PG
-```
+<table>
+<tr>
+<td width="25%" valign="top"><b>Architecture</b><br><sub>Service boundaries · API design · domain modelling · migration strategy</sub></td>
+<td width="25%" valign="top"><b>Distributed systems</b><br><sub>Queue topology · delivery guarantees · idempotency · checkpointed resume</sub></td>
+<td width="25%" valign="top"><b>Data</b><br><sub>Relational modelling · query performance · caching · consistency boundaries</sub></td>
+<td width="25%" valign="top"><b>Production</b><br><sub>Containerised deploys · structured logging · failure budgets · cost control</sub></td>
+</tr>
+</table>
+
+---
+
+## Architecture &amp; system design
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
+  <img alt="Backend system architecture — edge, gateway, stateless services, state, async workers, external providers" src="assets/architecture-light.svg" width="100%">
+</picture>
 
 <table>
 <tr><td width="50%" valign="top">
 
-#### Service boundaries
+**Stateless request path**
 
-API tier stays stateless and owns no long work. Every expensive path is a queued job with
-its own worker pool, so a slow provider degrades one queue instead of the request path.
+The API tier owns no long work. Every expensive operation becomes a queued job with its own
+worker pool, so a slow downstream degrades one queue instead of the request path.
 
 </td><td width="50%" valign="top">
 
-#### Delivery guarantees
+**Delivery guarantees**
 
-Outbound partner events are at-least-once, so receivers must tolerate replay. Idempotency
-claimed atomically at the row level — a double-fire is a no-op, not a double charge.
+Outbound events are at-least-once, so receivers must tolerate replay. Idempotency is claimed
+atomically at the row level — a double-fire becomes a no-op rather than a duplicate.
 
 </td></tr>
 <tr><td valign="top">
 
-#### Backpressure & resume
+**Backpressure and resume**
 
-Semaphore-bounded provider calls, per-unit checkpointing in Redis. A run stops, resumes or
-restarts mid-file without replaying completed work or losing position.
+Bounded concurrency on external calls, with per-unit checkpoints in Redis. A run stops,
+resumes or restarts mid-workload without replaying completed work.
 
 </td><td valign="top">
 
-#### Cost as a constraint
+**Cost as a constraint**
 
-Per-model pricing synced continuously and estimated pre-flight. A job is priced before it
-is admitted, not discovered after the invoice.
+For LLM-backed paths, per-model pricing is synced continuously and estimated pre-flight.
+Work is priced before admission rather than discovered on the invoice.
 
 </td></tr>
 </table>
 
 ---
 
-### Stack
+## Stack
 
 | | |
 |---|---|
-| **Core** | Python · Django 5 · Django REST Framework |
+| **Backend** | Python · Django · Django REST Framework · FastAPI |
 | **Data** | PostgreSQL · Redis |
-| **Async** | Celery · asyncio · multi-queue routing |
-| **Infra** | Docker · AWS (S3, SNS, Bedrock) · Nginx · Gunicorn |
-| **Interfaces** | REST · WebSockets · HMAC-signed partner APIs · webhooks |
+| **Distributed / async** | Celery · message queues · WebSockets · asyncio |
+| **Infrastructure** | Docker · AWS (S3, SNS, Bedrock) · Nginx · Linux |
+| **AI** | LLM APIs · embeddings · RAG · agent orchestration |
 
 ---
 
-### How I work
+## Selected engineering work
 
-> **Root cause over symptom.** One guard in the shared function beats a guard in every caller.
->
-> **Boring beats clever.** Clever is what someone has to decode at 3am.
->
-> **Deletion is a feature.** The best code is the code that never needed to exist.
+<table>
+<tr><td width="50%" valign="top">
+
+### Distributed LQA platform
+`Django` `PostgreSQL` `Redis` `Celery` `AWS`
+
+**Problem** — score large volumes of translated content with LLMs, then route every unit
+through a multi-stage human review workflow without losing state.
+
+**Architecture** — stateless API tier, worker fleets split by queue, provider-agnostic LLM
+layer, Redis checkpointing for stop/resume/restart, event-driven partner integration.
+
+**Result** — long-running AI workloads that survive provider failure and resume from the
+last committed position instead of the beginning.
+
+<sub>Professional work — source not public.</sub>
+
+</td><td width="50%" valign="top">
+
+### Real-time messaging service
+`Django Channels` `WebSockets` `Redis`
+
+**Problem** — deliver bidirectional messages to grouped clients with authenticated sessions.
+
+**Architecture** — WebSocket consumers over Django Channels, Redis-backed channel layer for
+group broadcast, session-backed authentication on connect.
+
+**Result** — persistent connections with server-initiated delivery, no polling.
+
+[**View repository →**](https://github.com/SheikhJawad/Django_ChatApp)
+
+</td></tr>
+<tr><td valign="top">
+
+### JWT authentication API
+`Django REST Framework` `PostgreSQL`
+
+**Problem** — issue and rotate credentials for API clients without server-side session state.
+
+**Architecture** — DRF viewsets with access/refresh token pairs, rotation and blacklisting,
+permission classes enforced at the view boundary.
+
+**Result** — a stateless auth layer that scales horizontally with the API tier.
+
+[**View repository →**](https://github.com/SheikhJawad/user_management-api)
+
+</td><td valign="top">
+
+### Containerised streaming service
+`Django` `WebSockets` `Docker`
+
+**Problem** — run a stateful streaming service reproducibly across environments.
+
+**Architecture** — docker-compose topology, structured logging split by level, environment
+configuration externalised from the image.
+
+**Result** — identical local and deployed behaviour from one image definition.
+
+[**View repository →**](https://github.com/SheikhJawad/websocket_streaming)
+
+</td></tr>
+</table>
 
 ---
 
-### Selected work
+## Engineering philosophy
 
-Pinned below — real-time messaging on Django Channels, a JWT auth API in DRF,
-a Dockerised WebSocket service, and transformer fine-tuning for text classification.
+> **Fix the cause, not the call site.** One guard in the shared function beats a guard in every caller — and the callers you forgot are the incident.
+>
+> **Boring code wins.** Clever is what someone has to decode at 3am with a pager going off.
+>
+> **Deletion is a feature.** The most reliable code is the code that never needed to exist.
+>
+> **Design for the second year.** Anything can be made to work once. Systems are judged by what happens after the person who built them moves on.
+
+---
+
+## Currently exploring
+
+```text
+→  High-throughput Django architecture beyond the request/response cycle
+→  Distributed systems — consensus, partitioning, delivery semantics
+→  LLM infrastructure — evaluation, cost modelling, agent orchestration
+→  Observability as a design input rather than an afterthought
+```
+
+---
+
+<h3 align="center">Building something that has to stay up?</h3>
+
+<p align="center">
+  Happy to talk architecture, backend engineering, or putting AI systems into production.
+</p>
+
+<p align="center">
+  <a href="mailto:hafizjawad858@gmail.com"><b>Email</b></a> &nbsp;·&nbsp;
+  <a href="https://linkedin.com/in/jawad-yousaf-devloper360"><b>LinkedIn</b></a> &nbsp;·&nbsp;
+  <a href="https://personal-portfolio-seven-amber-80.vercel.app/"><b>Portfolio</b></a>
+</p>
