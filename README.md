@@ -1,64 +1,70 @@
 ## Jawad Yousaf
 
-**Backend Engineer** · Django · Distributed task pipelines · LLM infrastructure
+**Backend Engineer** · Distributed systems · Service architecture · LLM infrastructure
 
-I build the unglamorous half of AI products — the queueing, the retries, the idempotency,
-the cost accounting, and the parsers that survive whatever a customer actually uploads.
+I design and run the unglamorous half of AI products — service boundaries, queue topology,
+idempotency, backpressure, and the failure paths nobody demos.
 
 `Pakistan` · [LinkedIn](https://linkedin.com/in/jawad-yousaf-devloper360) · [Portfolio](https://personal-portfolio-seven-amber-80.vercel.app/) · `hafizjawad858@gmail.com`
 
 ---
 
-### Currently
+### System design
 
-Backend for a **language-quality-assurance platform** — an AI pipeline that scores translated
-content against the MQM error taxonomy, then routes every segment through a multi-stage human
-review workflow before producing an auditable quality report.
+A platform I own the backend of: a stateless API tier, an autonomous worker fleet split by
+queue, and event-driven integration with partner systems. Scaled independently, deployed
+independently, failing independently.
 
 ```mermaid
-flowchart LR
-    A["Source file<br/>XLSX · CSV · XLIFF"] --> B["Format-preserving<br/>parser"]
-    B --> C[("Segment store<br/>PostgreSQL")]
-    C --> D{{"Celery · threads pool"}}
-    D --> E["Agent 1<br/>error detection"]
-    E --> F["Agent 2<br/>adjudication"]
-    F --> G["Scoring engine<br/>MQM · weighted"]
-    G --> H["Human review<br/>4 stages"]
-    H --> I["Audited report"]
-    D -.->|checkpoint| R[("Redis")]
-    R -.->|resume| D
+flowchart TB
+    CL["Clients · Partner systems"]
+    CL -->|"REST · JWT · HMAC-signed"| API["API tier<br/><i>stateless · horizontally scaled</i>"]
+
+    API --> PG[("PostgreSQL<br/><i>system of record</i>")]
+    API --> BR{{"Redis<br/><i>broker · cache · checkpoints</i>"}}
+
+    BR --> W1["Worker fleet<br/><i>queue: ai</i>"]
+    BR --> W2["Worker fleet<br/><i>queue: ingestion</i>"]
+    BR --> W3["Worker fleet<br/><i>queue: events</i>"]
+
+    W1 --> LLM["LLM providers<br/>OpenAI · Anthropic · Google · Bedrock"]
+    W2 --> OBJ[("Object storage<br/>S3")]
+    W3 --> EVT["Event bus · webhooks<br/><i>at-least-once</i>"]
+
+    W1 --> PG
+    W2 --> PG
+    W3 --> PG
 ```
 
 <table>
 <tr><td width="50%" valign="top">
 
-**Concurrency & reliability**
+#### Service boundaries
 
-Celery on a threads pool so `asyncio.gather` can fan out inside tasks. Semaphore-bounded
-provider calls, Redis checkpointing per segment — a run stops, resumes or restarts
-mid-file without losing work.
+API tier stays stateless and owns no long work. Every expensive path is a queued job with
+its own worker pool, so a slow provider degrades one queue instead of the request path.
 
 </td><td width="50%" valign="top">
 
-**Provider abstraction**
+#### Delivery guarantees
 
-One interface over OpenAI, Anthropic, Google and AWS Bedrock. Per-model pricing sync
-and pre-flight cost estimation, so a job is priced before it is allowed to start.
+Outbound partner events are at-least-once, so receivers must tolerate replay. Idempotency
+claimed atomically at the row level — a double-fire is a no-op, not a double charge.
 
 </td></tr>
 <tr><td valign="top">
 
-**Scoring engine**
+#### Backpressure & resume
 
-Client-configurable severity weights, per-category penalties and pass thresholds.
-One formula, four surfaces, and the guardrails that keep them from drifting apart.
+Semaphore-bounded provider calls, per-unit checkpointing in Redis. A run stops, resumes or
+restarts mid-file without replaying completed work or losing position.
 
 </td><td valign="top">
 
-**Format fidelity**
+#### Cost as a constraint
 
-Parsers for XLSX, CSV and four XLIFF dialects with lossless inline-tag round-trip —
-a translated file comes back out intact, tags and all.
+Per-model pricing synced continuously and estimated pre-flight. A job is priced before it
+is admitted, not discovered after the invoice.
 
 </td></tr>
 </table>
@@ -71,9 +77,9 @@ a translated file comes back out intact, tags and all.
 |---|---|
 | **Core** | Python · Django 5 · Django REST Framework |
 | **Data** | PostgreSQL · Redis |
-| **Async** | Celery · asyncio |
+| **Async** | Celery · asyncio · multi-queue routing |
 | **Infra** | Docker · AWS (S3, SNS, Bedrock) · Nginx · Gunicorn |
-| **Interfaces** | REST · WebSockets · HMAC-signed partner APIs |
+| **Interfaces** | REST · WebSockets · HMAC-signed partner APIs · webhooks |
 
 ---
 
