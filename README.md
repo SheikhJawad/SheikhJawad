@@ -18,7 +18,7 @@ I build backend systems that stay correct under load and under failure.
 
 Most of my work sits behind the API: service boundaries, queue topology, database design,
 asynchronous processing, and the failure paths that never make it into a demo. I care about
-the properties that decide whether a system survives its second year — idempotency,
+the properties that decide whether a system survives its second year  idempotency,
 backpressure, observability, and the ability to resume rather than restart.
 
 Recently that has meant putting LLM providers into production paths, where latency is
